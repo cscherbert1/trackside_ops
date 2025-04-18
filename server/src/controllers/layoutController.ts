@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { Layout } from '../models';
+import { models } from '../models';
 import { LayoutSchema } from '../schemas/layout.schema';
+
+const Layout = models.Layout;
 
 export const getAllLayouts = async (req: Request, res: Response): Promise<void> => {
   const layouts = await Layout.findAll();

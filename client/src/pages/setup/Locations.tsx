@@ -1,62 +1,149 @@
-// File: client/src/pages/LocationsPage.tsx
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-  } from "@/components/ui/breadcrumb"
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableHeader, TableRow, TableCell } from '@/components/ui/table'
-// Add modal or inline form components as needed
+import { Pencil, Trash2 } from "lucide-react"
+import {fetchLayoutById} from "@/services/layoutService"
+import { Layout } from "@/types/layoutTypes"
+import { Location, LocationForm } from "@/types/locationTypes"
 
 export default function Locations() {
-  const { layoutId } = useParams()
+  const { layoutId } = useParams();
+  const [layout, setLayout] = useState<Layout | null>(null);
 
-  console.log(`Setup Locations for Layout Id: ${layoutId}`)
+  useEffect(() => {
+    if (layoutId) {
+        fetchLayoutById(Number(layoutId)).then(setLayout).catch(console.error);
+    }
+  }, [layoutId]);
+
+  const [form, setForm] = useState<LocationForm>({
+    name: '',
+    isSwitching: false,
+    isClassification: false,
+    isStaging: false,
+    id: null
+  });
+  const editing = form.id !== null;
+  const [locations, setLocations] = useState<Location[]>([])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+  }
+
+  const handleCheckboxChange = (id: 'switching' | 'classification' | 'staging') => {
+    setForm(prev => ({
+      ...prev,
+      isSwitching: id === 'switching' ? !prev.isSwitching : prev.isSwitching,
+      isClassification: id === 'classification' ? !prev.isClassification : prev.isClassification,
+      isStaging: id === 'staging' ? !prev.isStaging : prev.isStaging,
+    }))
+  }
+
+  const handleSubmit = () => {
+    const newLocation: Location = {
+      id: Date.now(), // temporary ID
+      name: form.name,
+      isSwitching: form.isSwitching,
+      isClassification: form.isClassification,
+    }
+    setLocations(prev => [...prev, newLocation])
+    setForm({ name: '', isSwitching: false, isClassification: false, isStaging: false, id:null })
+  }
+
+  const handleDelete = (id: number) => {
+    setLocations(prev => prev.filter(loc => loc.id !== id))
+  }
+
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-6 max-w-4xl mx-auto space-y-8">
       {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>
-            <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                    <Link to="/setup/layouts">Layouts</Link>
-                </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-                <BreadcrumbPage>Locations</BreadcrumbPage>
-            </BreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/setup/layouts">Layouts</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Locations</BreadcrumbPage>
+          </BreadcrumbItem>
         </BreadcrumbList>
-        </Breadcrumb>
+      </Breadcrumb>
 
+        <h1 className="text-2xl font-bold">
+            <span>{layout?.name || "..."}</span> Locations
+        </h1>
 
       {/* Form */}
-      <div className="space-y-4 border p-4 rounded-xl bg-muted">
+      <div className="space-y-4 border p-4 rounded-xl shadow-sm bg-slate-100">
         <h2 className="text-lg font-bold">Add New Location</h2>
-        <Input placeholder="Location Name" />
-        <div className="flex gap-4">
-            <div className="flex items-center space-x-2">
-                <Checkbox id="switching" />
-                <label htmlFor="switching" className="text-sm font-medium leading-none">
-                    Switching Location
-                </label>
-            </div>
-            <div className="flex items-center space-x-2">
-                <Checkbox id="classification" />
-                <label htmlFor="classification" className="text-sm font-medium leading-none">
-                    Classification Yard
-                </label>
-            </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Name</label>
+          <Input
+            className="bg-white"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+          />
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary">Cancel</Button>
-          <Button>Create</Button>
+        <div className="flex gap-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+                className="bg-white"
+                id="switching"
+                checked={form.isSwitching}
+                onCheckedChange={() => handleCheckboxChange('switching')}
+            />
+            <label htmlFor="switching" className="text-sm font-medium leading-none">
+              Switching Location
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+                className="bg-white"
+                id="classification"
+                checked={form.isClassification}
+                onCheckedChange={() => handleCheckboxChange('classification')}
+            />
+            <label htmlFor="classification" className="text-sm font-medium leading-none">
+              Classification Yard
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+                className="bg-white"
+                id="staging"
+                checked={form.isStaging}
+                onCheckedChange={() => handleCheckboxChange('staging')}
+            />
+            <label htmlFor="staging" className="text-sm font-medium leading-none">
+              Staging Yard
+            </label>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={() => setForm({ name: '', isSwitching: false, isClassification: false, isStaging: false, id: null })}>
+            Cancel
+          </Button>
+          <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleSubmit}>
+            Create
+          </Button>
         </div>
       </div>
 
@@ -66,19 +153,24 @@ export default function Locations() {
           <TableHeader>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell className="text-right">Actions</TableCell>
             </TableRow>
           </TableHeader>
-          {/* Map data here */}
           <tbody>
-            <TableRow>
-              <TableCell>Springfield Yard</TableCell>
-              <TableCell className="space-x-2">
-                <Button size="sm" variant="outline">Spots</Button>
-                <Button size="icon" variant="ghost">🖉</Button>
-                <Button size="icon" variant="destructive">⊖</Button>
-              </TableCell>
-            </TableRow>
+            {locations.map(location => (
+              <TableRow key={location.id}>
+                <TableCell>{location.name}</TableCell>
+                <TableCell className="space-x-2">
+                  <Button size="sm" variant="outline">Spots</Button>
+                  <Button variant="outline" size="icon" onClick={() => console.log('edit', location)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" onClick={() => handleDelete(location.id)}>
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </tbody>
         </Table>
       </div>

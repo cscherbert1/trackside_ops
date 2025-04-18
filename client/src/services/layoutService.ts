@@ -11,6 +11,14 @@ export async function fetchLayouts(): Promise<Layout[]> {
   return res.json();
 }
 
+// Fetch layout by id
+export async function fetchLayoutById(layoutId:number): Promise<Layout> {
+    const url = `${API_URL}/${layoutId}`
+    const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch layout");
+  return res.json();
+}
+
 // Create layout
 export async function createLayout(data: Omit<Layout, "id">): Promise<Layout> {
   const res = await fetch(API_URL, {

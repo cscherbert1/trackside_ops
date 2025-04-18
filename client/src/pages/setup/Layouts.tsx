@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from 'react-router-dom'
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -65,48 +66,54 @@ export default function Layouts() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold">Layouts</h1>
+        <h1 className="text-2xl font-bold">Layouts</h1>
+        
+        {/* Form */}
+        <div className="space-y-4 border p-4 rounded-xl shadow-sm bg-slate-100">
+            <div>
+            <label className="block text-sm font-medium mb-1">Name</label>
+            <Input className="bg-white" name="name" value={form.name} onChange={handleChange} />
+            </div>
 
-      <div className="space-y-4 border p-4 rounded-xl shadow-sm bg-slate-100">
-        <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
-          <Input className="bg-white" name="name" value={form.name} onChange={handleChange} />
-        </div>
+            <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <Textarea className="bg-white" name="description" value={form.description} onChange={handleChange} placeholder="Optional" />
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <Textarea className="bg-white" name="description" value={form.description} onChange={handleChange} placeholder="Optional" />
+            <div className="flex flex-col sm:flex-row gap-2">
+                <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={() => setForm({ name: "", description: "", id: null })}>
+                     Cancel
+                </Button>
+                <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate}>{editing ? "Save" : "Create"}</Button>
+            </div>
         </div>
-
-        <div>
-          <Button className="bg-slate-700 text-white border border-black" onClick={handleCreateOrUpdate}>{editing ? "Save" : "Create"}</Button>
-          <Button className="bg-slate-300 border border-black ml-2" onClick={() => setForm({ name: "", description: "", id: null })}>
-              Cancel
-            </Button>
-        </div>
-      </div>
 
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
+            <TableHead className="hidden md:table-cell">Description</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {layouts.map((layout) => (
             <TableRow key={layout.id}>
-              <TableCell>{layout.name}</TableCell>
-              <TableCell>{layout.description}</TableCell>
-              <TableCell className="text-right space-x-2">
-                <Button variant="outline" size="icon" onClick={() => handleEdit(layout)}>
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={() => handleDelete(layout.id)}>
-                  <Trash2 className="w-4 h-4" name="trash2Icon" color="red" />
-                </Button>
-              </TableCell>
+                <TableCell>{layout.name}</TableCell>
+                <TableCell className="hidden md:table-cell">{layout.description}</TableCell>
+                <TableCell className="text-right space-x-2">
+                    <Button className="h-[34px] px-3 text-sm" variant="outline" size="sm">
+                        <Link to={`/setup/layouts/${layout.id}/locations`}>
+                            Locations
+                        </Link>
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={() => handleEdit(layout)}>
+                    <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={() => handleDelete(layout.id)}>
+                    <Trash2 className="w-4 h-4" name="trash2Icon" color="red" />
+                    </Button>
+                </TableCell>
             </TableRow>
           ))}
         </TableBody>

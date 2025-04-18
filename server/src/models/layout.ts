@@ -28,4 +28,4 @@ Layout.init(
   }
 );
 
-export default Layout;
+export { Layout };
