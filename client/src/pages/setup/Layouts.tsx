@@ -1,42 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
-import { Layout } from "@/types/layout"
-import { LayoutFormState } from "@/types/interfaces/layoutFormState"
+import {
+  fetchLayouts,
+  createLayout,
+  updateLayout,
+  deleteLayout,
+} from "@/services/layoutService";
+import {
+  Layout, 
+  LayoutForm
+} from "@/types/layoutTypes"
 
 export default function Layouts() {
-  const [layouts, setLayouts] = useState([
-    { id: 1, name: "Sample Layout", description: "Description text..." },
-    { id: 2, name: "Layout 2", description: "Description text..." },
-  ]);
+  const [layouts, setLayouts] = useState<Layout[]>([]);
 
-  const [form, setForm] = useState<LayoutFormState>({ name: "", description: "", id: null });
+  const [form, setForm] = useState<LayoutForm>({ name: "", description: "", id: null });
   const editing = form.id !== null;
+
+  useEffect(() => {
+    fetchLayouts().then(setLayouts).catch(console.error);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleCreateOrUpdate = () => {
-    if (editing) {
-      setLayouts((prev) =>
-        prev.map((l) => (l.id === form.id ? { ...l, name: form.name, description: form.description } : l))
-      );
-    } else {
-      setLayouts((prev) => [...prev, { id: Date.now(), name: form.name, description: form.description }]);
+  const handleCreateOrUpdate = async () => {
+    try {
+      if (editing && typeof form.id === "number") {
+        const updated = await updateLayout(form.id, {
+          name: form.name!,
+          description: form.description!,
+        });
+        setLayouts((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
+      } else {
+        const created = await createLayout({
+          name: form.name!,
+          description: form.description!,
+        });
+        setLayouts((prev) => [...prev, created]);
+      }
+      setForm({ name: "", description: "", id: null });
+    } catch (err) {
+      console.error(err);
     }
-    setForm({ name: "", description: "", id: null });
   };
 
   const handleEdit = (layout: Layout) => {
-    setForm({ ...layout });
+    setForm(layout);
   };
 
-  const handleDelete = (id: number) => {
-    setLayouts((prev) => prev.filter((l) => l.id !== id));
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteLayout(id);
+      setLayouts((prev) => prev.filter((l) => l.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
