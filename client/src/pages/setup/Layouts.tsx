@@ -91,9 +91,9 @@ export default function Layouts() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead className="hidden md:table-cell">Description</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className='font-bold'>Name</TableHead>
+            <TableHead className="font-bold hidden md:table-cell">Description</TableHead>
+            <TableHead className="font-bold text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -2,7 +2,7 @@ import {
     Layout
 } from "@/types/layoutTypes"
 
-const API_URL = "http://localhost:3000/api/layouts"; // adjust if using proxy or different port
+const API_URL = "http://localhost:3000/api/layouts";
 
 // Fetch all layouts
 export async function fetchLayouts(): Promise<Layout[]> {

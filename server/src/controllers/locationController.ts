@@ -25,7 +25,7 @@ export const getLocationById = async (req: Request, res: Response): Promise<void
 export const createLocation = async (req: Request, res: Response): Promise<void> => {
     try {
         const validatedLocation = LocationSchema.parse(req.body);
-        const location = Location.create(validatedLocation);
+        const location = await Location.create(validatedLocation);
         res.status(201).json(location);
     } catch (error) {
         throw new Error (error instanceof Error ? error.message : 'Cannot create location. Invalid data.');
