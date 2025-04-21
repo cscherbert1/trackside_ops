@@ -124,6 +124,12 @@ export default function Locations() {
     }
   };
 
+  const handleCancel = () => {
+    setForm(emptyForm);
+    setIsFormValid(false);
+    setErrorMessage(null);
+  }
+
   const handleEdit = (location: Location) => {
     setForm(location);
   };
@@ -209,10 +215,7 @@ export default function Locations() {
           )}
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={() => {
-            setForm(emptyForm);
-            setIsFormValid(false);
-          }}>
+          <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
           <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate} disabled={!isFormValid}>{editing ? "Save" : "Create"}</Button>

@@ -15,19 +15,44 @@ import {
   Layout, 
   LayoutForm
 } from "@/types/layoutTypes"
+import { LayoutSchema } from "@/schemas/layout.schema";
+import { ZodError } from "zod";
 
 export default function Layouts() {
   const [layouts, setLayouts] = useState<Layout[]>([]);
 
   const [form, setForm] = useState<LayoutForm>({ name: "", description: "", id: null });
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editing = form.id !== null;
+
+   const validateForm = (form: LayoutForm) => {
+      try {
+        LayoutSchema.parse({
+          name: form.name,
+          description: form.description
+        });
+        setErrorMessage(null);
+        return true;
+      } catch (err) {
+        if (err instanceof ZodError) {
+          setErrorMessage(err.errors[0]?.message ?? null);
+        } else {
+          setErrorMessage("Invalid form data.");
+        }
+        return false;
+      }
+    };
 
   useEffect(() => {
     fetchLayouts().then(setLayouts).catch(console.error);
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const updatedForm = { ...form, [name]: value };
+    setForm(updatedForm);
+    setIsFormValid(validateForm(updatedForm));
   };
 
   const handleCreateOrUpdate = async () => {
@@ -46,13 +71,22 @@ export default function Layouts() {
         setLayouts((prev) => [...prev, created]);
       }
       setForm({ name: "", description: "", id: null });
+      setIsFormValid(false);
     } catch (err) {
       console.error(err);
     }
   };
 
+  const handleCancel = () => {
+    const reset = { name: "", description: "", id: null };
+    setForm(reset);
+    setIsFormValid(validateForm(reset));
+    setErrorMessage(null);
+  }
+
   const handleEdit = (layout: Layout) => {
     setForm(layout);
+    setIsFormValid(validateForm(layout));
   };
 
   const handleDelete = async (id: number) => {
@@ -73,6 +107,9 @@ export default function Layouts() {
             <div>
             <label className="block text-sm font-medium mb-1">Name</label>
             <Input className="bg-white" name="name" value={form.name} onChange={handleChange} />
+            {errorMessage && (
+              <p className="text-sm text-red-600 mt-1">{errorMessage}</p>
+            )}
             </div>
 
             <div>
@@ -81,10 +118,10 @@ export default function Layouts() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">
-                <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={() => setForm({ name: "", description: "", id: null })}>
+                <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={handleCancel}>
                      Cancel
                 </Button>
-                <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate}>{editing ? "Save" : "Create"}</Button>
+                <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" disabled={!isFormValid} onClick={handleCreateOrUpdate}>{editing ? "Save" : "Create"}</Button>
             </div>
         </div>
 
