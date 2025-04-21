@@ -22,6 +22,8 @@ import {
 } from "@/services/locationService"
 import { Layout } from "@/types/layoutTypes"
 import { Location, LocationForm } from "@/types/locationTypes"
+import { LocationSchema } from '@/schemas/location.schema'
+import { ZodError } from 'zod'
 
 export default function Locations() {
   const { layoutId } = useParams();
@@ -35,7 +37,30 @@ export default function Locations() {
     id: null
   };
   const [form, setForm] = useState<LocationForm>(emptyForm);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editing = form.id !== null;
+
+  const validateForm = (form: LocationForm) => {
+    try {
+      LocationSchema.parse({
+        name: form.name,
+        layoutId: Number(layoutId),
+        isSwitching: form.isSwitching,
+        isClassification: form.isClassification,
+        isStaging: form.isStaging
+      });
+      setErrorMessage(null);
+      return true;
+    } catch (err) {
+      if (err instanceof ZodError) {
+        setErrorMessage(err.errors[0]?.message ?? null);
+      } else {
+        setErrorMessage("Invalid form data.");
+      }
+      return false;
+    }
+  };
 
   useEffect(() => {
     if (layoutId) {
@@ -45,20 +70,24 @@ export default function Locations() {
   }, [layoutId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-    setForm(prev => ({
-      ...prev,
+    const { name, value, type, checked } = e.target;
+    const updatedForm = {
+      ...form,
       [name]: type === 'checkbox' ? checked : value,
-    }))
-  }
+    };
+    setForm(updatedForm);
+    setIsFormValid(validateForm(updatedForm));
+  };
 
   const handleCheckboxChange = (id: 'switching' | 'classification' | 'staging') => {
-    setForm(prev => ({
-      ...prev,
-      isSwitching: id === 'switching' ? !prev.isSwitching : prev.isSwitching,
-      isClassification: id === 'classification' ? !prev.isClassification : prev.isClassification,
-      isStaging: id === 'staging' ? !prev.isStaging : prev.isStaging,
-    }))
+    const updatedForm = {
+      ...form,
+      isSwitching: id === 'switching' ? !form.isSwitching : form.isSwitching,
+      isClassification: id === 'classification' ? !form.isClassification : form.isClassification,
+      isStaging: id === 'staging' ? !form.isStaging : form.isStaging,
+    };
+    setForm(updatedForm);
+    setIsFormValid(validateForm(updatedForm));
   }
 
   const handleCreateOrUpdate = async () => {
@@ -69,21 +98,27 @@ export default function Locations() {
 
       const formData = {
         name: form.name!,
-        layoutId: Number(layoutId), // todo: ensure type is note 'undefined' for typescript, and convert to number
+        layoutId: Number(layoutId),
         isSwitching: form.isSwitching!,
         isClassification: form.isClassification!, 
         isStaging: form.isStaging!
       };
+
+      const validLocation = LocationSchema.parse(formData);
+      if(validLocation) {
+        setIsFormValid(true);
+      }
       
       if(editing && typeof form.id === "number") {
-        const updated = await updateLocation(form.id, formData);
+        const updated = await updateLocation(form.id, validLocation);
         setLocations((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
       } else {
-        const created = await createLocation(formData);
+        const created = await createLocation(validLocation);
         console.log('Created location:', created);
         setLocations((prev) => [...prev, created]);
       }
       setForm(emptyForm);
+      setIsFormValid(false);
     } catch (err) {
       console.error(err);
     }
@@ -169,12 +204,18 @@ export default function Locations() {
               Staging Yard
             </label>
           </div>
+          {errorMessage && (
+            <p className="text-sm text-red-600 mt-1">{errorMessage}</p>
+          )}
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={() => setForm(emptyForm)}>
+          <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={() => {
+            setForm(emptyForm);
+            setIsFormValid(false);
+          }}>
             Cancel
           </Button>
-          <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate}>{editing ? "Save" : "Create"}</Button>
+          <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate} disabled={!isFormValid}>{editing ? "Save" : "Create"}</Button>
         </div>
       </div>
 
