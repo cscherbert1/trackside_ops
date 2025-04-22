@@ -150,7 +150,7 @@ export default function Locations() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/setup/layouts">Layouts</Link>
+              <Link to="/setup/layouts">Layout: {layout?.name || "Layouts"}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

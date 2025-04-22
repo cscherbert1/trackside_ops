@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const LocationSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(2, 'Name is required'),
   layoutId: z.number(),
   isSwitching: z.boolean(), 
   isClassification: z.boolean(), 

@@ -1,23 +1,22 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
-class Location extends Model {
+class Track extends Model {
   public id!: number;
-  public layoutId!: number;
+  public locationId!: number;
   public name!: string;
-  public isSwitching!: boolean;
-  public isClassification!: boolean;
-  public isStaging!: boolean;
+  public trackLength!: number;
+  public isOffSpotAvailable!: boolean;
 }
 
-Location.init(
+Track.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    layoutId: {
+    locationId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -25,23 +24,19 @@ Location.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    isSwitching: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    trackLength: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    isClassification: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    isStaging: {
+    isOffSpotAvailable: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
   },
   {
     sequelize,
-    modelName: 'Location',
+    modelName: 'Track',
   }
 );
 
-export { Location };
+export { Track };

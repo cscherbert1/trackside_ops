@@ -4,6 +4,7 @@ import { initDb } from './models';
 import { errorHandler } from './middleware/errorHandler';
 import layoutRoutes from './routes/layoutRoutes';
 import locationRoutes from './routes/locationRoutes';
+import trackRoutes from './routes/trackRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/layouts', layoutRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/tracks', trackRoutes);
 app.use(errorHandler)
 
 initDb().then(() => {

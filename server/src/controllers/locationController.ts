@@ -38,7 +38,7 @@ export const updateLocation = async (req: Request, res: Response): Promise<void>
         const validatedData = LocationSchema.partial().parse(req.body);
 
         const location = await Location.findByPk(locationId);
-        if (!Location) {
+        if (!location) {
             throw new Error('Cannot update location. Location not found.');
         }
 

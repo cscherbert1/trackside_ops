@@ -1,33 +1,27 @@
-import { Sequelize } from 'sequelize';
 import sequelize from '../config/database';
-import fs from 'fs';
-import path from 'path';
 
-const models: { [key: string]: any } = {};
+// Import models directly
+import { Layout } from './layout';
+import { Location } from './location';
+import { Track } from './track';
 
-const basename = path.basename(__filename);
-const modelsDir = __dirname;
+// Collect models in one object (optional but handy)
+const models = {
+  Layout,
+  Location,
+  Track,
+};
 
-fs.readdirSync(modelsDir)
-  .filter((file) => {
-    return (
-      file !== basename &&
-      file.endsWith('.ts') &&
-      !file.endsWith('.d.ts')
-    );
-  })
-  .forEach((file) => {
-    const model = require(path.join(modelsDir, file));
-    const modelName = Object.keys(model)[0];
-    models[modelName] = model[modelName];
-  });
+// Define associations
+Layout.hasMany(Location, { foreignKey: 'layoutId', onDelete: 'CASCADE' });
+Location.belongsTo(Layout, { foreignKey: 'layoutId' });
 
-// If you ever define associations, you can do it here like:
-// Object.values(models).forEach(model => model.associate?.(models));
+Location.hasMany(Track, { foreignKey: 'locationId', onDelete: 'CASCADE' });
+Track.belongsTo(Location, { foreignKey: 'locationId' });
 
-
+// Initialize the database
 const initDb = async () => {
-  await sequelize.sync({ alter: true });
+  await sequelize.sync({ alter: true }); // alter = preserve data and apply changes
 };
 
 export { sequelize, initDb, models };

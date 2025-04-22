@@ -16,6 +16,3 @@ router.put('/:id', updateLocation);
 router.delete('/:id', deleteLocation);
 
 export default router;
-
-
-// todo: add apis to front end
