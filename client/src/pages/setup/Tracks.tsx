@@ -25,7 +25,7 @@ import { Location, LocationForm } from "@/types/locationTypes"
 import { LocationSchema } from '@/schemas/location.schema'
 import { ZodError } from 'zod'
 
-export default function Locations() {
+export default function Tracks() {
   const { layoutId } = useParams();
   const [layout, setLayout] = useState<Layout | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -236,11 +236,7 @@ export default function Locations() {
               <TableRow key={location.id}>
                 <TableCell>{location.name}</TableCell>
                 <TableCell className="space-x-2 text-right">
-                  <Button size="sm" variant="outline">
-                    <Link to={`/setup/locations/${location.id}/tracks`}>
-                      Tracks
-                    </Link>
-                  </Button>
+                  <Button size="sm" variant="outline">Tracks</Button>
                   <Button variant="outline" size="icon" onClick={() => handleEdit(location)}>
                     <Pencil className="w-4 h-4" />
                   </Button>

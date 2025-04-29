@@ -36,7 +36,7 @@ export async function updateLocation(id:number, data: Omit<Location, "id">): Pro
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     });
-    if (!res.ok) throw new Error("Failed to update layout");
+    if (!res.ok) throw new Error("Failed to update location");
     return res.json();
 }
 
@@ -45,5 +45,5 @@ export async function deleteLocation(id: number): Promise<void> {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
   });
-  if (!res.ok) throw new Error("Failed to delete layout");
+  if (!res.ok) throw new Error("Failed to delete location");
 }

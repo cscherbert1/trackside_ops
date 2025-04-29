@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { models } from '../models';
+import { models } from '../models/index';
 import { LayoutSchema } from '../schemas/layout.schema';
 
 const Layout = models.Layout;
