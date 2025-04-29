@@ -237,7 +237,7 @@ export default function Locations() {
                 <TableCell>{location.name}</TableCell>
                 <TableCell className="space-x-2 text-right">
                   <Button size="sm" variant="outline">
-                    <Link to={`/setup/locations/${location.id}/tracks`}>
+                    <Link to={`/setup/layouts/${layout?.id}/locations/${location.id}/tracks`}>
                       Tracks
                     </Link>
                   </Button>

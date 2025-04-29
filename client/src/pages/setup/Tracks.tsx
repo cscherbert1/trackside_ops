@@ -1,3 +1,4 @@
+// client/src/pages/setup/Tracks.tsx
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
@@ -13,42 +14,43 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableHeader, TableRow, TableCell } from '@/components/ui/table'
 import { Pencil, Trash2 } from "lucide-react"
-import {fetchLayoutById} from "@/services/layoutService"
+import { fetchLayoutById } from "@/services/layoutService"
+import { fetchLocationById } from "@/services/locationService"
 import {
-  fetchLocationByLayoutId,
-  createLocation, 
-  updateLocation,
-  deleteLocation
-} from "@/services/locationService"
-import { Layout } from "@/types/layoutTypes"
-import { Location, LocationForm } from "@/types/locationTypes"
-import { LocationSchema } from '@/schemas/location.schema'
+  fetchTracksByLocationId,
+  createTrack,
+  updateTrack,
+  deleteTrack
+} from "@/services/trackService"
+import { Track, TrackForm } from "@/types/trackTypes"
+import { TrackSchema } from '@/schemas/track.schema'
 import { ZodError } from 'zod'
+import { Location } from '@/types/locationTypes'
+import { Layout } from '@/types/layoutTypes'
 
 export default function Tracks() {
-  const { layoutId } = useParams();
+  const { layoutId, locationId } = useParams();
   const [layout, setLayout] = useState<Layout | null>(null);
-  const [locations, setLocations] = useState<Location[]>([]);
-  const emptyForm = {
+  const [location, setLocation] = useState<Location | null>(null);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const emptyForm: TrackForm = {
     name: '',
-    isSwitching: false,
-    isClassification: false,
-    isStaging: false,
-    id: null
+    trackLength: 0,
+    isOffSpotAvailable: false,
+    id: null,
   };
-  const [form, setForm] = useState<LocationForm>(emptyForm);
+  const [form, setForm] = useState<TrackForm>(emptyForm);
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editing = form.id !== null;
 
-  const validateForm = (form: LocationForm) => {
+  const validateForm = (form: TrackForm) => {
     try {
-      LocationSchema.parse({
+      TrackSchema.parse({
         name: form.name,
-        layoutId: Number(layoutId),
-        isSwitching: form.isSwitching,
-        isClassification: form.isClassification,
-        isStaging: form.isStaging
+        locationId: Number(locationId),
+        trackLength: form.trackLength,
+        isOffSpotAvailable: form.isOffSpotAvailable
       });
       setErrorMessage(null);
       return true;
@@ -64,59 +66,55 @@ export default function Tracks() {
 
   useEffect(() => {
     if (layoutId) {
-        fetchLayoutById(Number(layoutId)).then(setLayout).catch(console.error);
-        fetchLocationByLayoutId(Number(layoutId)).then(setLocations).catch(console.error);
+      fetchLayoutById(Number(layoutId))
+        .then(setLayout)
+        .catch(console.error);
     }
-  }, [layoutId]);
+  
+    if (locationId) {
+      fetchLocationById(Number(locationId))
+        .then(setLocation)
+        .catch(console.error);
+  
+      fetchTracksByLocationId(Number(locationId))
+        .then(setTracks)
+        .catch(console.error);
+    }
+  }, [layoutId, locationId]);
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     const updatedForm = {
       ...form,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : name === "trackLength" ? Number(value) : value,
     };
     setForm(updatedForm);
     setIsFormValid(validateForm(updatedForm));
   };
 
-  const handleCheckboxChange = (id: 'switching' | 'classification' | 'staging') => {
-    const updatedForm = {
-      ...form,
-      isSwitching: id === 'switching' ? !form.isSwitching : form.isSwitching,
-      isClassification: id === 'classification' ? !form.isClassification : form.isClassification,
-      isStaging: id === 'staging' ? !form.isStaging : form.isStaging,
-    };
-    setForm(updatedForm);
-    setIsFormValid(validateForm(updatedForm));
-  }
-
   const handleCreateOrUpdate = async () => {
     try {
-      if (!layoutId) {
-        throw new Error("Missing layoutId in route params");
-      }
+      if (!locationId) throw new Error("Missing locationId");
 
       const formData = {
         name: form.name!,
-        layoutId: Number(layoutId),
-        isSwitching: form.isSwitching!,
-        isClassification: form.isClassification!, 
-        isStaging: form.isStaging!
+        locationId: Number(locationId),
+        trackLength: form.trackLength!,
+        isOffSpotAvailable: form.isOffSpotAvailable!
       };
 
-      const validLocation = LocationSchema.parse(formData);
-      if(validLocation) {
-        setIsFormValid(true);
-      }
-      
-      if(editing && typeof form.id === "number") {
-        const updated = await updateLocation(form.id, validLocation);
-        setLocations((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
+      const validTrack = TrackSchema.parse(formData);
+      setIsFormValid(true);
+
+      if (editing && typeof form.id === "number") {
+        const updated = await updateTrack(form.id, validTrack);
+        setTracks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       } else {
-        const created = await createLocation(validLocation);
-        console.log('Created location:', created);
-        setLocations((prev) => [...prev, created]);
+        const created = await createTrack(validTrack);
+        setTracks((prev) => [...prev, created]);
       }
+
       setForm(emptyForm);
       setIsFormValid(false);
     } catch (err) {
@@ -128,16 +126,16 @@ export default function Tracks() {
     setForm(emptyForm);
     setIsFormValid(false);
     setErrorMessage(null);
-  }
+  };
 
-  const handleEdit = (location: Location) => {
-    setForm(location);
+  const handleEdit = (track: Track) => {
+    setForm(track);
   };
 
   const handleDelete = async (id: number) => {
-    try{
-      await deleteLocation(id);
-      setLocations((prev) => prev.filter((l) => l.id !== id));
+    try {
+      await deleteTrack(id);
+      setTracks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error(err);
     }
@@ -150,23 +148,29 @@ export default function Tracks() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/setup/layouts">Layout: {layout?.name || "Layouts"}</Link>
+              <Link to="/setup/layouts">{layout?.name || "Layouts"}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Locations</BreadcrumbPage>
+            <BreadcrumbLink asChild>
+              <Link to={`/setup/layouts/${layoutId}/locations`}>{location?.name || "..."}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Tracks</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-        <h1 className="text-2xl font-bold">
-            <span>{layout?.name || "..."}</span> Locations
-        </h1>
+      <h1 className="text-2xl font-bold">
+        <span>{location?.name || "..."}</span> Tracks
+      </h1>
 
       {/* Form */}
       <div className="space-y-4 border p-4 rounded-xl shadow-sm bg-slate-100">
-        <h2 className="text-lg font-bold">Add New Location</h2>
+        <h2 className="text-lg font-bold">Add New Track</h2>
         <div>
           <label className="block text-sm font-medium mb-1">Name</label>
           <Input
@@ -176,49 +180,39 @@ export default function Tracks() {
             onChange={handleChange}
           />
         </div>
-        <div className="flex gap-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-                className="bg-white"
-                id="switching"
-                checked={form.isSwitching}
-                onCheckedChange={() => handleCheckboxChange('switching')}
-            />
-            <label htmlFor="switching" className="text-sm font-medium leading-none">
-              Switching Location
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-                className="bg-white"
-                id="classification"
-                checked={form.isClassification}
-                onCheckedChange={() => handleCheckboxChange('classification')}
-            />
-            <label htmlFor="classification" className="text-sm font-medium leading-none">
-              Classification Yard
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-                className="bg-white"
-                id="staging"
-                checked={form.isStaging}
-                onCheckedChange={() => handleCheckboxChange('staging')}
-            />
-            <label htmlFor="staging" className="text-sm font-medium leading-none">
-              Staging Yard
-            </label>
-          </div>
-          {errorMessage && (
-            <p className="text-sm text-red-600 mt-1">{errorMessage}</p>
-          )}
+        <div>
+          <label className="block text-sm font-medium mb-1">Track Length (ft)</label>
+          <Input
+            className="bg-white"
+            name="trackLength"
+            type="number"
+            value={form.trackLength === 0? "": form.trackLength}
+            onChange={handleChange}
+          />
         </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            className="bg-white"
+            id="isOffSpotAvailable"
+            checked={form.isOffSpotAvailable}
+            onCheckedChange={() => setForm((prev) => ({
+              ...prev,
+              isOffSpotAvailable: !prev.isOffSpotAvailable
+            }))}
+          />
+          <label htmlFor="isOffSpotAvailable" className="text-sm font-medium leading-none">
+            Off Spot Available
+          </label>
+        </div>
+        {errorMessage && <p className="text-sm text-red-600 mt-1">{errorMessage}</p>}
+
         <div className="flex flex-col sm:flex-row gap-2">
           <Button className="bg-slate-300 border border-black sm:ml-2 w-full sm:w-auto sm:flex-1" variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate} disabled={!isFormValid}>{editing ? "Save" : "Create"}</Button>
+          <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateOrUpdate} disabled={!isFormValid}>
+            {editing ? "Save" : "Create"}
+          </Button>
         </div>
       </div>
 
@@ -227,20 +221,25 @@ export default function Tracks() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableCell className='font-bold'>Name</TableCell>
+              <TableCell className="font-bold">Name</TableCell>
+              <TableCell className="font-bold">Length (ft)</TableCell>
+              <TableCell className="font-bold hidden md:table-cell">Off Spot</TableCell>
               <TableCell className="font-bold text-right">Actions</TableCell>
             </TableRow>
           </TableHeader>
           <tbody>
-            {locations.map(location => (
-              <TableRow key={location.id}>
-                <TableCell>{location.name}</TableCell>
+            {[...tracks]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(track => (
+                <TableRow key={track.id}>
+                <TableCell>{track.name}</TableCell>
+                <TableCell>{track.trackLength}</TableCell>
+                <TableCell className="hidden md:table-cell">{track.isOffSpotAvailable ? "Yes" : "No"}</TableCell>
                 <TableCell className="space-x-2 text-right">
-                  <Button size="sm" variant="outline">Tracks</Button>
-                  <Button variant="outline" size="icon" onClick={() => handleEdit(location)}>
+                  <Button variant="outline" size="icon" onClick={() => handleEdit(track)}>
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => handleDelete(location.id)}>
+                  <Button variant="outline" size="icon" onClick={() => handleDelete(track.id)}>
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </Button>
                 </TableCell>
@@ -250,5 +249,5 @@ export default function Tracks() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

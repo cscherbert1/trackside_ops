@@ -16,7 +16,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="setup/layouts" element={<Layouts />} />
           <Route path="setup/layouts/:layoutId/locations" element={<Locations/>}/>
-          <Route path="/setup/locations/:locationId/tracks" element={<Tracks/>}/>
+          <Route path="setup/layouts/:layoutId/locations/:locationId/tracks" element={<Tracks/>}/>
           <Route path="setup/cars" element={<Cars />} />
           <Route path="setup/industries" element={<Industries />} />
           <Route path="settings" element={<Settings />} />

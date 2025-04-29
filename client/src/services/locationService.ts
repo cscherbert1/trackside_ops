@@ -11,7 +11,7 @@ export async function fetchLocationByLayoutId(layoutId: number): Promise<Locatio
 }
 
 // Fetch location by id
-export async function fetchLocationId(locationId: number): Promise<Location> {
+export async function fetchLocationById(locationId: number): Promise<Location> {
     const url = `${API_URL}/${locationId}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error("Failed to fetch laocation by id");
