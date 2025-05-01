@@ -5,7 +5,8 @@ import Layouts from "./pages/setup/Layouts";
 import Locations from "./pages/setup/Locations";
 import Tracks from "./pages/setup/Tracks";
 import Cars from "./pages/setup/Cars";
-import Industries from "./pages/setup/Industries";
+import Commodities from "./pages/setup/Commodities";
+import Waybills from "./pages/setup/Waybills";
 import Settings from "./pages/Settings";
 
 function App() {
@@ -18,7 +19,8 @@ function App() {
           <Route path="setup/layouts/:layoutId/locations" element={<Locations/>}/>
           <Route path="setup/layouts/:layoutId/locations/:locationId/tracks" element={<Tracks/>}/>
           <Route path="setup/cars" element={<Cars />} />
-          <Route path="setup/industries" element={<Industries />} />
+          <Route path="setup/commodities" element={<Commodities />} />
+          <Route path="setup/waybills" element={<Waybills />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

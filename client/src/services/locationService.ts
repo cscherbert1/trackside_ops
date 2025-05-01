@@ -6,7 +6,7 @@ const API_URL = "http://localhost:3000/api/locations";
 export async function fetchLocationByLayoutId(layoutId: number): Promise<Location[]> {
     const url = `${API_URL}/getByLayout/${layoutId}`;
     const res = await fetch(url);
-    if(!res.ok) throw new Error("Failed to fetch laocations by layoutId");
+    if(!res.ok) throw new Error("Failed to fetch locations by layoutId");
     return res.json();
 }
 
@@ -14,7 +14,7 @@ export async function fetchLocationByLayoutId(layoutId: number): Promise<Locatio
 export async function fetchLocationById(locationId: number): Promise<Location> {
     const url = `${API_URL}/${locationId}`;
     const res = await fetch(url);
-    if(!res.ok) throw new Error("Failed to fetch laocation by id");
+    if(!res.ok) throw new Error("Failed to fetch location by id");
     return res.json();
 }
 

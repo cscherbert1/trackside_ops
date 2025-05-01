@@ -58,8 +58,9 @@ export default function Navbar() {
           {desktopSetupOpen && (
             <div className="absolute left-0 mt-2 bg-slate-800 text-white rounded shadow-md z-50 min-w-[160px]">
               <NavLink to="setup/layouts" className="block px-4 py-2 hover:bg-slate-700" onClick={closeMenu}>Layouts</NavLink>
+              <NavLink to="setup/commodities" className="block px-4 py-2 hover:bg-slate-700" onClick={closeMenu}>Commodities</NavLink>
               <NavLink to="setup/cars" className="block px-4 py-2 hover:bg-slate-700" onClick={closeMenu}>Cars</NavLink>
-              <NavLink to="setup/industries" className="block px-4 py-2 hover:bg-slate-700" onClick={closeMenu}>Industries</NavLink>
+              <NavLink to="setup/waybills" className="block px-4 py-2 hover:bg-slate-700" onClick={closeMenu}>Waybills</NavLink>          
             </div>
           )}
         </div>

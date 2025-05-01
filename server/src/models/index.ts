@@ -4,12 +4,14 @@ import sequelize from '../config/database';
 import { Layout } from './layout';
 import { Location } from './location';
 import { Track } from './track';
+import { Commodity } from './commodity';
 
 // Collect models in one object (optional but handy)
 const models = {
   Layout,
   Location,
   Track,
+  Commodity,
 };
 
 // Define associations
@@ -19,9 +21,19 @@ Location.belongsTo(Layout, { foreignKey: 'layoutId' });
 Location.hasMany(Track, { foreignKey: 'locationId', onDelete: 'CASCADE' });
 Track.belongsTo(Location, { foreignKey: 'locationId' });
 
+Layout.hasMany(Commodity, { foreignKey: 'layoutId', onDelete: 'CASCADE' });
+Commodity.belongsTo(Layout, { foreignKey: 'layoutId' });
+
 // Initialize the database
 const initDb = async () => {
-  await sequelize.sync({ alter: true }); // alter = preserve data and apply changes
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    // DO NOT sync if using migrations
+    // await sequelize.sync({ alter: true });
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 };
 
 export { sequelize, initDb, models };

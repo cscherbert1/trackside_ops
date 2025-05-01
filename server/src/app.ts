@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/errorHandler';
 import layoutRoutes from './routes/layoutRoutes';
 import locationRoutes from './routes/locationRoutes';
 import trackRoutes from './routes/trackRoutes';
+import commdityRoutes from './routes/commodityRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/layouts', layoutRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/tracks', trackRoutes);
+app.use('/api/commodities', commdityRoutes);
 app.use(errorHandler)
 
 initDb().then(() => {
