@@ -23,6 +23,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      isSwitching: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      isClassification: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      isStaging: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
