@@ -6,6 +6,7 @@ import layoutRoutes from './routes/layoutRoutes';
 import locationRoutes from './routes/locationRoutes';
 import trackRoutes from './routes/trackRoutes';
 import commdityRoutes from './routes/commodityRoutes';
+import waybillRoutes from './routes/waybillRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use('/api/layouts', layoutRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/tracks', trackRoutes);
 app.use('/api/commodities', commdityRoutes);
+app.use('/api/waybills', waybillRoutes);
 app.use(errorHandler)
 
 initDb().then(() => {

@@ -5,6 +5,9 @@ import { Layout } from './layout';
 import { Location } from './location';
 import { Track } from './track';
 import { Commodity } from './commodity';
+import { Car } from './car';
+import  { Waybill } from './waybill';
+import { Instruction } from './instruction';
 
 // Collect models in one object (optional but handy)
 const models = {
@@ -12,6 +15,9 @@ const models = {
   Location,
   Track,
   Commodity,
+  Waybill,
+  Instruction,
+  Car, 
 };
 
 // Define associations
@@ -23,6 +29,18 @@ Track.belongsTo(Location, { foreignKey: 'locationId' });
 
 Layout.hasMany(Commodity, { foreignKey: 'layoutId', onDelete: 'CASCADE' });
 Commodity.belongsTo(Layout, { foreignKey: 'layoutId' });
+
+Layout.hasMany(Waybill, { foreignKey: 'layoutId', onDelete: 'CASCADE'});
+Waybill.belongsTo(Layout, { foreignKey: 'layoutId' });
+Waybill.hasMany(Instruction, { foreignKey: 'waybillId', onDelete: 'CASCADE'});
+Instruction.belongsTo(Waybill, { foreignKey: 'waybillId' });
+
+Layout.hasMany(Car, { foreignKey: 'layoutId', onDelete: 'CASCADE' });
+Car.belongsTo(Layout, { foreignKey: 'layoutId' });
+Track.hasMany(Car, { foreignKey: 'trackId' });
+Car.belongsTo(Track, { foreignKey: 'trackId' });
+
+
 
 // Initialize the database
 const initDb = async () => {

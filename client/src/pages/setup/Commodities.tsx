@@ -12,7 +12,7 @@ import {
 import { Table, TableHeader, TableRow, TableCell } from '@/components/ui/table'
 import { Pencil, Trash2 } from 'lucide-react'
 import { Layout } from '@/types/layoutTypes'
-import { Commodity, CommodityForm } from '@/types/commodityTypes'
+import { Commodity } from '@/types/commodityTypes'
 import { fetchLayouts } from '@/services/layoutService'
 import {
   fetchCommodities,
@@ -102,7 +102,7 @@ export default function Commodities() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
 
-      <h1 className="text-2xl font-bold">Manage Commodities</h1>
+      <h1 className="text-2xl font-bold">Commodities</h1>
 
       {/* Layout Select */}
       <div className="mb-6">
