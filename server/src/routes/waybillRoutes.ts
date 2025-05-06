@@ -16,7 +16,7 @@ import {
  router.post('/', createWaybillWithInstructions);
  router.put('/:id', updateWaybillWithInstructions);
  router.delete('/:id', deleteWaybill);
- router.get('/turnWaybill/:waybillId', turnWaybill);
- router.get('/getActiveInstruction/:waybillId', getActiveInstructionForWaybill);
+ router.get('/turnWaybill/:id', turnWaybill);
+ router.get('/getActiveInstruction/:id', getActiveInstructionForWaybill);
  
  export default router;

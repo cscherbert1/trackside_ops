@@ -75,6 +75,9 @@ const syncInstructions = async (waybillId: number, newInstructions: InstructionI
 };
 
 export const updateWaybillWithInstructions = async (req: Request, res: Response): Promise<void> => {
+  if (req.body.Instructions && !req.body.instructions) {
+    req.body.instructions = req.body.Instructions;
+  }
   const validatedWaybill = WaybillSchema.safeParse(req.body);
   if (!validatedWaybill.success) {
     const errors = JSON.stringify(validatedWaybill.error.errors);
