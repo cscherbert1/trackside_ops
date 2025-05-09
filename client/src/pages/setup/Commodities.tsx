@@ -1,21 +1,13 @@
 // client/src/pages/setup/Commodities.tsx
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { Table, TableHeader, TableRow, TableCell } from '@/components/ui/table'
+import LayoutSelector from '@/components/LayoutSelector';
 import { Pencil, Trash2 } from 'lucide-react'
-import { Layout } from '@/types/layoutTypes'
 import { Commodity } from '@/types/commodityTypes'
-import { fetchLayouts } from '@/services/layoutService'
 import {
-  fetchCommodities,
+  fetchCommoditiesbyLayoutId,
   createCommodity,
   updateCommodity,
   deleteCommodity,
@@ -23,22 +15,17 @@ import {
 
 
 export default function Commodities() {
-  const [layouts, setLayouts] = useState<Layout[]>([]);
   const [selectedLayoutId, setSelectedLayoutId] = useState<number | null>(null);
   const [commodities, setCommodities] = useState<Commodity[]>([]);
   const [form, setForm] = useState<{ id: number | null; name: string }>({ id: null, name: '' });
   const [isFormValid, setIsFormValid] = useState(false);
   const editing = form.id !== null;
 
-  useEffect(() => {
-    fetchLayouts().then(setLayouts).catch(console.error);
-  }, []);
-
-  const handleSelectLayout = async (value: string) => {
+  const handleSelectLayout = async (value: number) => {
     const id = Number(value);
     setSelectedLayoutId(id);
     try {
-      const data = await fetchCommodities(id);
+      const data = await fetchCommoditiesbyLayoutId(id);
       setCommodities(data);
     } catch (error) {
       console.error("Error loading commodities:", error);
@@ -104,22 +91,7 @@ export default function Commodities() {
 
       <h1 className="text-2xl font-bold">Commodities</h1>
 
-      {/* Layout Select */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-1">Select Layout</label>
-        <Select onValueChange={handleSelectLayout}>
-          <SelectTrigger className="w-full bg-white">
-            <SelectValue placeholder="Choose a layout..." />
-          </SelectTrigger>
-          <SelectContent className="bg-white z-50 shadow-md border rounded-md">
-            {layouts.map((layout) => (
-              <SelectItem key={layout.id} value={String(layout.id)} className="hover:bg-slate-100 cursor-pointer">
-                {layout.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <LayoutSelector onSelect={handleSelectLayout}/>
 
       {selectedLayoutId && (
         <>
