@@ -12,7 +12,7 @@ export interface Waybill {
 
 export interface WaybillInput {
   layoutId: number;
-  carType: string;
+  carType: string | undefined;
   repeating: boolean;
   rareWaybill: boolean;
   currentSequence: number;

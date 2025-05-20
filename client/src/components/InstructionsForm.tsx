@@ -15,7 +15,7 @@ interface InstructionsFormProps {
   locations: Location[];
   commodities: Commodity[];
   tracksByLocation: Record<number, Track[]>;
-  onChange: (index: number, field: keyof Instruction, value: any) => void;
+  onChange: (index: number, field: keyof Instruction, value: string | number) => void;
   onLocationChange: (index: number, locationId: number) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;

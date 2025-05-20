@@ -11,7 +11,7 @@ export interface Instruction {
   
   export interface InstructionInput {
     id?: number; // Optional for new instructions
-    commodityId: number;
+    commodityId: number | undefined;
     locationId: number;
     trackId: number;
     tat: string;
