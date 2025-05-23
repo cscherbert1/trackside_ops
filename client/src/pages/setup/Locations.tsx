@@ -155,7 +155,7 @@ export default function Locations() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Locations</BreadcrumbPage>
+            <BreadcrumbPage className='font-bold'>Locations</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

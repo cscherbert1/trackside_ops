@@ -159,7 +159,7 @@ export default function Tracks() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Tracks</BreadcrumbPage>
+            <BreadcrumbPage className='font-bold'>Tracks</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

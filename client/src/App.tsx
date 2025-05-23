@@ -7,6 +7,8 @@ import Tracks from "./pages/setup/Tracks";
 import Cars from "./pages/setup/Cars";
 import Commodities from "./pages/setup/Commodities";
 import Waybills from "./pages/setup/Waybills";
+import WaybillsCreate from "./pages/setup/WaybillCreate";
+import WaybillsEdit from "./pages/setup/WaybillEdit";
 import Settings from "./pages/Settings";
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
           <Route path="setup/cars" element={<Cars />} />
           <Route path="setup/commodities" element={<Commodities />} />
           <Route path="setup/waybills" element={<Waybills />} />
+          <Route path="setup/waybills/create/:layoutId" element={<WaybillsCreate />} />
+          <Route path="setup/waybills/edit/:layoutId" element={<WaybillsEdit />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

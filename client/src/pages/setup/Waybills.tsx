@@ -1,48 +1,51 @@
 import { useEffect, useState } from 'react';
-import { Commodity } from '@/types/commodityTypes';
-import { Location } from '@/types/locationTypes';
+import { useNavigate } from 'react-router-dom';
 import { Waybill } from '@/types/waybillTypes';
-import { fetchLocationByLayoutId } from '@/services/locationService';
-import { fetchCommoditiesbyLayoutId } from '@/services/commodityService';
 import { fetchWaybillsByLayoutId } from '@/services/waybillService';
 import LayoutSelector from '@/components/LayoutSelector';
-import WaybillForm from '@/components/WaybillsForm';
-import WaybillTable from '@/components/WaybillsTable';
+import { Button } from '@/components/ui/button';
 
 export default function WaybillsPage() {
+  const navigate = useNavigate();
   const [layoutId, setLayoutId] = useState<number | null>(null);
   const [waybills, setWaybills] = useState<Waybill[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [commodities, setCommodities] = useState<Commodity[]>([]);
-  const [selectedWaybill, setSelectedWaybill] = useState<Waybill | null>(null);
 
   useEffect(() => {
     if (layoutId !== null) {
       fetchWaybillsByLayoutId(layoutId).then(setWaybills);
-      fetchLocationByLayoutId(layoutId).then(setLocations).catch(console.error);
-      fetchCommoditiesbyLayoutId(layoutId).then(setCommodities).catch(console.error);
     }
   }, [layoutId]);
 
+  const handleCreateWaybillsClick = () => {
+    navigate(`/setup/waybills/create/${layoutId}`);
+  };
+
+  const handleEditWaybillsClick = () => {
+    navigate(`/setup/waybills/edit/${layoutId}`);
+  }
+
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-semibold">Waybills</h1>
+    <div className="p-6 max-w-4xl mx-auto space-y-8">
+      <h1 className="text-2xl font-bold">Waybills</h1>
       <LayoutSelector onSelect={(id) => setLayoutId(id)} />
 
       {layoutId !== null && (
         <>
-          <WaybillForm
-            layoutId={layoutId}
-            locations={locations}
-            commodities={commodities}
-            setWaybills={setWaybills}
-            initialWaybill={selectedWaybill}
-          />
-
+          <div><h3>Total Waybills: {waybills.length}</h3></div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleCreateWaybillsClick}>
+              Create Waybills
+            </Button>
+            <Button className="bg-slate-500 text-white border border-black w-full sm:w-auto sm:flex-1" onClick={handleEditWaybillsClick}>
+              Edit Waybills
+            </Button>
+          </div>
+          
+          {/*
           <WaybillTable
             waybills={waybills}
             onSelect={(wb) => setSelectedWaybill(wb)}
-          />
+          /> */}
         </>
       )}
     </div>
