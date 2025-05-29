@@ -1,4 +1,5 @@
-import { Instruction, InstructionInput } from './instructionTypes';
+// client/src/types/waybillTypes.ts
+import { Instruction } from './instructionTypes';
 
 export interface Waybill {
   id: number;
@@ -7,14 +8,14 @@ export interface Waybill {
   repeating: boolean;
   rareWaybill: boolean;
   currentSequence: number;
-  instructions: Instruction[]; // This matches the backend include behavior
+  instructions: Instruction[];
 }
 
-export interface WaybillInput {
-  layoutId: number;
-  carType: string | undefined;
-  repeating: boolean;
-  rareWaybill: boolean;
-  currentSequence: number;
-  instructions: InstructionInput[]; // Instructions being created/updated with the waybill
-}
+// export interface WaybillInput {
+//   layoutId: number;
+//   carType: string | undefined;
+//   repeating: boolean;
+//   rareWaybill: boolean;
+//   currentSequence: number;
+//   instructions: InstructionInput[]; // Instructions being created/updated with the waybill
+// }

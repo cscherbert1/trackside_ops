@@ -1,25 +1,17 @@
-// components/WaybillForm.tsx
-import { useEffect, useState } from 'react';
-import CarTypes from '@/types/carTypes';
-import { Commodity } from '@/types/commodityTypes';
-import { Location } from '@/types/locationTypes';
-import { Track } from '@/types/trackTypes';
-import { Waybill, WaybillInput } from '@/types/waybillTypes';
-import { Instruction } from '@/types/instructionTypes';
-import { fetchTracksByLocationId } from '@/services/trackService';
+// Updated client/components/WaybillForm.tsx
+import { useEffect } from 'react';
+import { useForm, useFieldArray, FieldArrayWithId } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { WaybillSchema, WaybillInput } from '@/schemas/waybillSchema';
 import { createWaybillWithInstructions, fetchWaybillsByLayoutId } from '@/services/waybillService';
 import InstructionsForm from '@/components/InstructionsForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { WaybillSchema } from '@/schemas/waybillSchema';
-import { z } from 'zod';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CarTypes from '@/types/carTypes';
+import { Waybill } from '@/types/waybillTypes';
+import { Commodity } from '@/types/commodityTypes';
+import { Location } from '@/types/locationTypes';
 
 interface WaybillFormProps {
   layoutId: number;
@@ -31,142 +23,61 @@ interface WaybillFormProps {
 }
 
 export default function WaybillForm({ layoutId, locations, commodities, setWaybills, initialWaybill, onCancel }: WaybillFormProps) {
-  const [waybillData, setWaybillData] = useState<Partial<Waybill>>({
-    carType: '',
-    repeating: false,
-    rareWaybill: false,
-    currentSequence: 1,
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors }
+  } = useForm<WaybillInput>({
+    resolver: zodResolver(WaybillSchema),
+    defaultValues: {
+      carType: '',
+      repeating: false,
+      rareWaybill: false,
+      currentSequence: 1,
+      layoutId,
+      instructions: [{ commodityId: undefined, locationId: undefined, tat: '' }, { commodityId: undefined, locationId: undefined, tat: '' }]
+    }
   });
 
-  const [instructions, setInstructions] = useState<Partial<Instruction>[]>([{}, {}]);
-  const [tracksByLocation, setTracksByLocation] = useState<Record<number, Track[]>>({});
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'instructions'
+  });
 
   useEffect(() => {
     if (initialWaybill) {
-      setWaybillData({
-        carType: initialWaybill.carType,
-        repeating: initialWaybill.repeating,
-        rareWaybill: initialWaybill.rareWaybill,
-        currentSequence: initialWaybill.currentSequence,
-        id: initialWaybill.id
-      });
-      setInstructions(initialWaybill.instructions || [{}, {}]);
+      reset(initialWaybill);
     }
-  }, [initialWaybill]);
+  }, [initialWaybill, reset]);
 
-  useEffect(() => {
-    instructions.forEach((inst) => {
-      const locationId = inst.locationId;
-      if (locationId && !tracksByLocation[locationId]) {
-        fetchTracksByLocationId(locationId)
-          .then((tracks) => {
-            setTracksByLocation((prev) => ({ ...prev, [locationId]: tracks }));
-          })
-          .catch(console.error);
-      }
-    });
-  }, [instructions, tracksByLocation]);
-
-  const handleLocationChange = async (instructionIndex: number, locationId: number) => {
-    setInstructions((prev) => {
-      const updated = [...prev];
-      updated[instructionIndex] = {
-        ...updated[instructionIndex],
-        locationId,
-        trackId: undefined,
-      };
-      return updated;
-    });
-
-    if (!tracksByLocation[locationId]) {
-      try {
-        const tracks = await fetchTracksByLocationId(locationId);
-        setTracksByLocation((prev) => ({ ...prev, [locationId]: tracks }));
-      } catch (err) {
-        console.error("Failed to fetch tracks", err);
-      }
-    }
-  };
-
-  const handleInstructionChange = (index: number, field: keyof Instruction, value: string | number) => {
-    const updated = [...instructions];
-    updated[index] = {
-      ...updated[index],
-      [field]: value,
-    };
-    setInstructions(updated);
-  };
-
-  const addInstruction = () => {
-    if (instructions.length < 6) {
-      setInstructions([...instructions, {}]);
-    }
-  };
-
-  const removeInstruction = (index: number) => {
-    if (instructions.length > 2) {
-      setInstructions(instructions.filter((_, i) => i !== index));
-    }
-  };
-
-  const resetForm = () => {
-  setWaybillData({ carType: '', repeating: false, rareWaybill: false, currentSequence: 1 });
-  setInstructions([{}, {}]);
-};
-
-  const handleCancel = () => {
-    resetForm();
-    onCancel?.();
-  };
-
-  const isValidInstruction = (inst: Partial<Instruction>) =>
-  inst.locationId && inst.trackId && inst.commodityId;
-
-  const handleWaybillSubmit = async () => {
-    const allValid = instructions.every(isValidInstruction);
-    if (!allValid) {
-      alert("Please fill out all instruction fields.");
-      return;
-    } 
-    const payload: WaybillInput = {
-      ...waybillData,
-      layoutId,
-      instructions: instructions.map((inst, index) => ({
-        ...inst,
-        sequence: index + 1,
-      })),
-    };
-
+  const onSubmit = async (data: WaybillInput) => {
     try {
-      WaybillSchema.parse(payload); // Throws if invalid
-      await createWaybillWithInstructions(payload);
-      setWaybillData({ carType: '', repeating: false, rareWaybill: false, currentSequence: 1 });
-      setInstructions([{}, {}]);
-      const waybills = await fetchWaybillsByLayoutId(layoutId);
-      setWaybills(waybills);
-      if (onCancel) onCancel();
+      await createWaybillWithInstructions({
+        ...data,
+        layoutId,
+        instructions: data.instructions.map((inst, idx) => ({ ...inst, sequence: idx + 1 }))
+      });
+      const updated = await fetchWaybillsByLayoutId(layoutId);
+      setWaybills(updated);
+      reset();
+      onCancel?.();
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        console.error("Validation errors:", err.flatten().fieldErrors);
-        alert("Please fix the form errors before submitting.");
-        // Optional: display errors in UI
-      } else {
-        console.error("Unexpected error:", err);
-      }
+      console.error('Submit error:', err);
     }
   };
 
   return (
-    <>
+    <form>
       <h2 className="text-xl font-medium pb-1">Waybill Info</h2>
-      <Card>
+      <Card className='mb-5'>
         <CardContent className="space-y-2">
-          <label htmlFor={'carType'} className="block text-sm font-medium mb-1">Car Type</label>
-          <Select
-            value={waybillData.carType || ''}
-            onValueChange={(val) => setWaybillData({ ...waybillData, carType: val })}
-          >
-            <SelectTrigger id={'carType'} className='bg-white'>
+          <label className="block text-sm font-medium">Car Type</label>
+          <Select value={watch('carType')} onValueChange={val => setValue('carType', val)}>
+            <SelectTrigger className="bg-white">
               <SelectValue placeholder="Select Car Type" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50 shadow-md border rounded-md">
@@ -177,54 +88,42 @@ export default function WaybillForm({ layoutId, locations, commodities, setWaybi
               ))}
             </SelectContent>
           </Select>
+          {errors.carType && <p className="text-red-500 text-sm">{errors.carType.message}</p>}
 
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={waybillData.repeating || false}
-              onChange={(e) => setWaybillData({ ...waybillData, repeating: e.target.checked })}
-            />
-            Repeating
+            <input type="checkbox" {...register('repeating')} /> Repeating
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" {...register('rareWaybill')} /> Rare Waybill
           </label>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={waybillData.rareWaybill || false}
-              onChange={(e) => setWaybillData({ ...waybillData, rareWaybill: e.target.checked })}
-            />
-            Rare Waybill
-          </label>
-          <Button className="bg-slate-300 text-black border border-black w-full sm:w-auto sm:flex-1" 
-          onClick={addInstruction}>
-              Add Instruction
+          <Button
+            className="bg-slate-300 text-black border border-black w-full sm:w-auto"
+            onClick={(e) => {
+              e.preventDefault();
+              if (fields.length < 6) append({ commodityId: 0, locationId: 0, tat: '' });
+            }}
+          >
+            Add Instruction
           </Button>
         </CardContent>
       </Card>
 
-      <div className="space-y-2">
-        <h2 className="text-xl font-medium pb-1">Instructions</h2>
-      </div>
-        <InstructionsForm
-          instructions={instructions}
-          locations={locations}
-          commodities={commodities}
-          tracksByLocation={tracksByLocation}
-          onChange={handleInstructionChange}
-          onLocationChange={handleLocationChange}
-          onRemove={removeInstruction}
-        />
+      <InstructionsForm
+        control={control}
+        errors={errors.instructions ?? []}
+        fields={fields as FieldArrayWithId<WaybillInput, 'instructions', 'id'>[]}
+        remove={remove}
+        locations={locations}
+        commodities={commodities}
+      />
 
       <div className="flex gap-2 mt-2">
-        <Button className="bg-slate-500 text-white border border-black w-full sm:w-auto sm:flex-1"
-         variant="outline" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button className="bg-slate-700 text-white border border-black w-full sm:w-auto sm:flex-1" 
-          onClick={handleWaybillSubmit}>
-          {waybillData?.id ? 'Update Waybill' : 'Save Waybill'}
+        <Button className="bg-slate-500 text-white border border-black" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button className="bg-slate-700 text-white border border-black" onClick={handleSubmit(onSubmit)}>
+          {watch('id') ? 'Update Waybill' : 'Save Waybill'}
         </Button>
       </div>
-    </>
+    </form>
   );
 }

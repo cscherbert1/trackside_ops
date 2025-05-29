@@ -10,16 +10,14 @@ export const InstructionSchema = z.object({
     required_error: 'Location is required',
     invalid_type_error: 'Location must be selected'
   }),
-  trackId: z.number({
-    required_error: 'Track is required',
-    invalid_type_error: 'Track must be selected'
-  }),
+  trackId: z.number().optional(),
   tat: z.string().min(1, 'TAT is required'),
-  specialInstructions: z.string().max(64).optional().nullable(),
-  sequence: z.number().optional(), // Will be injected before submit
+  specialInstructions: z.string().max(64, 'Maximum length is 64 characters').optional(),
+  sequence: z.number().optional(),
 });
 
 export const WaybillSchema = z.object({
+  id: z.number().optional(),
   carType: z.string().min(1, 'Car Type is required'),
   repeating: z.boolean(),
   rareWaybill: z.boolean(),
@@ -29,3 +27,7 @@ export const WaybillSchema = z.object({
     .min(2, 'At least 2 instructions are required')
     .max(6, 'No more than 6 instructions are allowed'),
 });
+
+export type WaybillInput = z.infer<typeof WaybillSchema>;
+export const instructionsArraySchema = z.array(InstructionSchema);
+export type InstructionFormData = z.infer<typeof instructionsArraySchema>;
