@@ -101,7 +101,7 @@ export default function WaybillForm({ layoutId, locations, commodities, setWaybi
             className="bg-slate-300 text-black border border-black w-full sm:w-auto"
             onClick={(e) => {
               e.preventDefault();
-              if (fields.length < 6) append({ commodityId: 0, locationId: 0, tat: '' });
+              if (fields.length < 6) append({ commodityId: null, locationId: null, trackId: undefined, tat: '' });
             }}
           >
             Add Instruction

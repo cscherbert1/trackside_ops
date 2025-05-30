@@ -40,7 +40,7 @@ export default function InstructionsForm({
         }).catch(console.error);
       }
     });
-  }, [instructions]);
+  }, [instructions, tracksByLocation]);
 
   return (
     <div className="flex flex-wrap gap-4 pb-3">
@@ -104,32 +104,46 @@ export default function InstructionsForm({
               />
               {errors?.[index]?.locationId && <p className="text-sm text-red-500">{errors[index].locationId.message}</p>}
 
-              {instructions?.[index]?.locationId && tracksByLocation[instructions[index].locationId] && (
-                <>
-                  <label className="block text-sm font-medium mb-1">Track</label>
-                  <Controller
-                    control={control}
-                    name={`instructions.${index}.trackId`}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value?.toString() || ''}
-                        onValueChange={(val) => field.onChange(Number(val))}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Track" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white z-50 shadow-md border rounded-md">
-                          {tracksByLocation[instructions[index].locationId].map((track) => (
-                            <SelectItem key={track.id} value={track.id.toString()} className="hover:bg-slate-100 cursor-pointer">
-                              {track.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </>
-              )}
+                {(() => {
+                  const selectedLocationId = instructions?.[index]?.locationId;
+                  const selectedLocation = locations.find(loc => loc.id === selectedLocationId);
+
+                  return (
+                    selectedLocationId &&
+                    selectedLocation?.isSwitching &&
+                    tracksByLocation[selectedLocationId] && (
+                      <>
+                        <label className="block text-sm font-medium mb-1">Track</label>
+                        <Controller
+                          control={control}
+                          name={`instructions.${index}.trackId`}
+                          render={({ field }) => (
+                            <Select
+                              value={field.value?.toString() || ''}
+                              onValueChange={(val) => field.onChange(Number(val))}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select Track" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white z-50 shadow-md border rounded-md">
+                                {tracksByLocation[selectedLocationId].map((track) => (
+                                  <SelectItem
+                                    key={track.id}
+                                    value={track.id.toString()}
+                                    className="hover:bg-slate-100 cursor-pointer"
+                                  >
+                                    {track.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      </>
+                    )
+                  );
+                })()}
+              {errors?.[index]?.trackId && <p className="text-sm text-red-500">{errors[index].trackId.message}</p>}
 
               <label className="block text-sm font-medium mb-1">Turn Around Time</label>
               <Controller
