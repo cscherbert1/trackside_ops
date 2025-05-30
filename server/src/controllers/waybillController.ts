@@ -21,6 +21,76 @@ export const getWaybillsByLayoutId = async (req: Request, res: Response): Promis
   }
 };
 
+export const getWaybillsByCarType = async (req: Request, res: Response): Promise<void> => {
+  const { layoutId, carType } = req.params;
+
+  try {
+    const waybills = await Waybill.findAll({
+      where: {
+        layoutId,
+        carType,
+      },
+      include: Instruction,
+    });
+    res.json(waybills);
+  } catch (err) {
+    console.error(err);
+    throw new Error('Failed to fetch waybills by carType');
+  }
+};
+
+export const getWaybillsByInstructionCommodity = async (req: Request, res: Response): Promise<void> => {
+  const { layoutId, commodityId } = req.params;
+
+  try {
+    const waybills = await Waybill.findAll({
+      where: { layoutId },
+      include: {
+        model: Instruction,
+        where: { commodityId },
+      },
+    });
+    res.json(waybills);
+  } catch (err) {
+    console.error(err);
+    throw new Error('Failed to fetch waybills by instruction commodity');
+  }
+};
+
+export const getWaybillsByInstructionLocation = async (req: Request, res: Response): Promise<void> => {
+  const { layoutId, locationId } = req.params;
+
+  try {
+    // First, find all waybill IDs that match the layoutId and have at least one instruction with the specified locationId
+    const matchingInstructions = await Instruction.findAll({
+      attributes: ['waybillId'],
+      where: { locationId },
+      include: [{
+        model: Waybill,
+        where: { layoutId },
+        attributes: [],
+      }],
+    });
+
+    const waybillIds = [...new Set(matchingInstructions.map(inst => inst.waybillId))];
+
+    if (waybillIds.length === 0) {
+      res.json([]); // No matching waybills
+    }
+
+    // Now fetch all waybills with those IDs and include all of their instructions
+    const waybills = await Waybill.findAll({
+      where: { id: waybillIds },
+      include: Instruction,
+    });
+
+    res.json(waybills);
+  } catch (err) {
+    console.error(err);
+    throw new Error('Failed to fetch waybills by instruction location');
+  }
+};
+
 export const getWaybillById = async (req: Request, res: Response): Promise<void> => {
   const waybill = await Waybill.findByPk(req.params.id, { include: Instruction });
   if (!waybill){

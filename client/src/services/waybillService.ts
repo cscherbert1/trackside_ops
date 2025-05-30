@@ -17,6 +17,27 @@ export async function fetchWaybillById(id: number): Promise<Waybill> {
   return res.json();
 }
 
+// Fetch by Car Type
+export async function fetchWaybillsByCarType(layoutId: number, carType: string): Promise<Waybill[]>{
+  const res = await fetch(`${API_URL}/getByCarType/${layoutId}/${carType}`);
+  if (!res.ok) throw new Error ("Failed to fetch waybills by car type");
+  return res.json();
+}
+
+// Fetch by Commodity
+export async function fetchWaybillsByCommodityId(layoutId: number, commodityId: number): Promise<Waybill[]>{
+  const res = await fetch(`${API_URL}/getByCarType/${layoutId}/${commodityId}`);
+  if (!res.ok) throw new Error ("Failed to fetch waybills by commodity");
+  return res.json();
+}
+
+// Fetch by Location
+export async function fetchWaybillsByLocationId(layoutId: number, locationId: number): Promise<Waybill[]>{
+  const res = await fetch(`${API_URL}/getByCarType/${layoutId}/${locationId}`);
+  if (!res.ok) throw new Error ("Failed to fetch waybills by car type");
+  return res.json();
+}
+
 // Create a waybill with instructions
 export async function createWaybillWithInstructions(data: WaybillInput): Promise<Waybill> {
   const res = await fetch(`${API_URL}`, {

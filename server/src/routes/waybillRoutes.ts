@@ -6,17 +6,23 @@ import {
     updateWaybillWithInstructions,
     deleteWaybill,
     turnWaybill,
-    getActiveInstructionForWaybill
- } from '../controllers/waybillController';
+    getActiveInstructionForWaybill,
+    getWaybillsByCarType,
+    getWaybillsByInstructionCommodity,
+    getWaybillsByInstructionLocation
+} from '../controllers/waybillController';
 
- const router = Router();
+const router = Router();
  
- router.get('/getByLayout/:layoutId', getWaybillsByLayoutId);
- router.get('/:id', getWaybillById);
- router.post('/', createWaybillWithInstructions);
- router.put('/:id', updateWaybillWithInstructions);
- router.delete('/:id', deleteWaybill);
- router.get('/turnWaybill/:id', turnWaybill);
- router.get('/getActiveInstruction/:id', getActiveInstructionForWaybill);
- 
- export default router;
+router.get('/getByLayout/:layoutId', getWaybillsByLayoutId);
+router.get('/:id', getWaybillById);
+router.post('/', createWaybillWithInstructions);
+router.put('/:id', updateWaybillWithInstructions);
+router.delete('/:id', deleteWaybill);
+router.get('/turnWaybill/:id', turnWaybill);
+router.get('/getActiveInstruction/:id', getActiveInstructionForWaybill);
+router.get('/getByCarType/:layoutId/:carType', getWaybillsByCarType);
+router.get('/getByInstructionCommodity/:layoutId/:commodityId', getWaybillsByInstructionCommodity);
+router.get('/getByInstructionLocation/:layoutId/:locationId', getWaybillsByInstructionLocation);
+
+export default router;
