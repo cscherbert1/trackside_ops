@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Waybill } from '@/types/waybillTypes';
-import { Instruction } from '@/types/instructionTypes';
 import { fetchLocationById } from '@/services/locationService';
 import { fetchCommodityById } from '@/services/commodityService';
 

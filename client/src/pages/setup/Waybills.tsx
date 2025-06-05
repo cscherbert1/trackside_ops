@@ -21,7 +21,7 @@ export default function WaybillsPage() {
   };
 
   const handleEditWaybillsClick = () => {
-    navigate(`/setup/waybills/edit/${layoutId}`);
+    navigate(`/setup/waybills/search/${layoutId}`);
   }
 
   return (

@@ -1,12 +1,20 @@
-// pages/WaybillEditPage.tsx
+// pages/WaybillsSearchPage.tsx
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import WaybillTable from '@/components/WaybillsTable';
 import { Waybill } from '@/types/waybillTypes';
 import { fetchWaybillsByLayoutId } from '@/services/waybillService';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 
-export default function WaybillEditPage() {
+export default function WaybillsSearchPage() {
   const { layoutId } = useParams();
   const [waybills, setWaybills] = useState<Waybill[]>([]);
 
@@ -46,7 +54,20 @@ export default function WaybillEditPage() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 max-w-4xl mx-auto space-y-8">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+              <Link to="/setup/waybills">Waybills</Link>
+              </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+              <BreadcrumbPage className='font-bold'>Search Waybills</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+        </Breadcrumb>
       <h1 className="text-2xl font-bold mb-4">Edit Waybills</h1>
       <WaybillTable waybills={waybills} onSelect={handleSelectWaybill} />
     </div>
