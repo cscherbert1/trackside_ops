@@ -8,7 +8,7 @@ export interface Waybill {
   repeating: boolean;
   rareWaybill: boolean;
   currentSequence: number;
-  instructions: Instruction[];
+  Instructions: Instruction[];
 }
 
 export interface WaybillInput {
