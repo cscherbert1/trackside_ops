@@ -17,26 +17,32 @@ interface EnrichedWaybill extends Waybill {
 
 export default function WaybillTable({ waybills, onSelect }: WaybillTableProps) {
   const [enrichedWaybills, setEnrichedWaybills] = useState<EnrichedWaybill[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const totalPages = Math.ceil(enrichedWaybills.length / rowsPerPage);
+  const paginatedWaybills = enrichedWaybills.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  const start = enrichedWaybills.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+  const end = Math.min(currentPage * rowsPerPage, enrichedWaybills.length);
 
   useEffect(() => {
     let isMounted = true;
 
     const enrichWaybills = async () => {
-      console.log(`Starting enrichment for ${waybills.length} waybills...`);
-
       const enriched: EnrichedWaybill[] = (
         await Promise.all(
           waybills.map(async (wb): Promise<EnrichedWaybill | undefined> => {
             try {
               const instructions = wb.Instructions || [];
-              console.debug(`Waybill ${wb.id} has ${instructions.length} instructions.`);
-
               let from = '';
               let to = '';
               let commodity = 'Empty';
 
               if (instructions.length > 0) {
-                // Ensure instructions are sorted by sequenece
                 const sorted = [...instructions].sort(
                   (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0)
                 );
@@ -54,9 +60,7 @@ export default function WaybillTable({ waybills, onSelect }: WaybillTableProps) 
                   console.warn(`Could not fetch from/to location(s) for waybill ${wb.id}`, e);
                 }
 
-                const nonEmpty = sorted.find(
-                  (instr: Instruction) => instr.commodityId !== null
-                );
+                const nonEmpty = sorted.find(instr => instr.commodityId !== null);
 
                 if (nonEmpty?.commodityId) {
                   try {
@@ -78,23 +82,46 @@ export default function WaybillTable({ waybills, onSelect }: WaybillTableProps) 
       ).filter((wb): wb is EnrichedWaybill => wb !== undefined);
 
       if (isMounted) {
-        if (enriched.length !== waybills.length) {
-          console.warn(`Some waybills failed to enrich: ${waybills.length - enriched.length}`);
-        }
         setEnrichedWaybills(enriched);
       }
     };
 
     if (waybills.length > 0) enrichWaybills();
+    else setEnrichedWaybills([]);
 
     return () => {
       isMounted = false;
     };
   }, [waybills]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [enrichedWaybills.length, rowsPerPage]);
+
   return (
     <div className="mt-4">
       <h2 className="text-xl font-semibold mb-2">Existing Waybills</h2>
+
+      <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
+        <div>
+          Showing {start}–{end} of {enrichedWaybills.length} waybills
+        </div>
+        <div className="flex items-center gap-2">
+          Rows per page:
+          <select
+            className="border rounded px-2 py-1"
+            value={rowsPerPage}
+            onChange={(e) => setRowsPerPage(Number(e.target.value))}
+          >
+            {[5, 10, 20, 50].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 text-sm">
           <thead className="bg-gray-100">
@@ -109,11 +136,11 @@ export default function WaybillTable({ waybills, onSelect }: WaybillTableProps) 
             </tr>
           </thead>
           <tbody>
-            {enrichedWaybills.map((wb) => (
+            {paginatedWaybills.map((wb) => (
               <tr key={wb.id} className="hover:bg-gray-50">
                 <td className="px-4 py-2 border text-center">{wb.id}</td>
                 <td className="px-4 py-2 border text-center">{wb.carType}</td>
-                <td className="px-4 py-2 border text-center">{wb.Instructions?.length || "-"}</td>
+                <td className="px-4 py-2 border text-center">{wb.Instructions?.length || '-'}</td>
                 <td className="px-4 py-2 border text-center">{wb.from || '—'}</td>
                 <td className="px-4 py-2 border text-center">{wb.to || '—'}</td>
                 <td className="px-4 py-2 border text-center">{wb.commodity || '—'}</td>
@@ -127,7 +154,7 @@ export default function WaybillTable({ waybills, onSelect }: WaybillTableProps) 
                 </td>
               </tr>
             ))}
-            {enrichedWaybills.length === 0 && (
+            {paginatedWaybills.length === 0 && (
               <tr>
                 <td colSpan={7} className="text-center text-gray-500 py-4">
                   No waybills found.
@@ -137,6 +164,36 @@ export default function WaybillTable({ waybills, onSelect }: WaybillTableProps) 
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4 flex justify-center gap-2 text-sm">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 border rounded ${
+                currentPage === i + 1 ? 'bg-gray-200' : ''
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@ export const InstructionSchema = z.object({
   id: z.number().optional(),
   commodityId: z.number(),
   locationId: z.number(),
-  trackId: z.number(),
+  trackId: z.number().optional(),
   tat: z.string(),
   specialInstructions: z.string().max(64).optional().nullable(),
   sequence: z.number().int().min(1),

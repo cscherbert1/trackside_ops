@@ -33,7 +33,13 @@ Instruction.init(
     },
     trackId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
+      references: {
+        model: 'Tracks',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     },
     tat: {
       type: DataTypes.STRING,
