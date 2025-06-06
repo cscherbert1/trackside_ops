@@ -1,4 +1,4 @@
-// Updated client/components/WaybillForm.tsx
+// client/components/WaybillForm.tsx
 import { useEffect } from 'react';
 import { useForm, useFieldArray, FieldArrayWithId } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

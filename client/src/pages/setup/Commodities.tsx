@@ -7,7 +7,7 @@ import LayoutSelector from '@/components/LayoutSelector';
 import { Pencil, Trash2 } from 'lucide-react'
 import { Commodity } from '@/types/commodityTypes'
 import {
-  fetchCommoditiesbyLayoutId,
+  fetchCommoditiesByLayoutId,
   createCommodity,
   updateCommodity,
   deleteCommodity,
@@ -25,7 +25,7 @@ export default function Commodities() {
     const id = Number(value);
     setSelectedLayoutId(id);
     try {
-      const data = await fetchCommoditiesbyLayoutId(id);
+      const data = await fetchCommoditiesByLayoutId(id);
       setCommodities(data);
     } catch (error) {
       console.error("Error loading commodities:", error);

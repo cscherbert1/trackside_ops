@@ -3,7 +3,7 @@ import { Commodity } from "@/types/commodityTypes";
 const API_URL = "http://localhost:3000/api/commodities";
 
 // Fetch commodities by layout id
-export async function fetchCommoditiesbyLayoutId(layoutId: number): Promise<Commodity[]> {
+export async function fetchCommoditiesByLayoutId(layoutId: number): Promise<Commodity[]> {
   const url = `${API_URL}/getByLayout/${layoutId}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch commodities by layoutId");

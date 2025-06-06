@@ -19,3 +19,9 @@ export interface WaybillInput {
   currentSequence: number;
   instructions: InstructionInput[]; // Instructions being created/updated with the waybill
 }
+
+export interface EnrichedWaybill extends Waybill {
+  from?: string;
+  to?: string;
+  commodity?: string;
+}

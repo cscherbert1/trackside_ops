@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import WaybillTable from '@/components/WaybillsTable';
 import { Waybill } from '@/types/waybillTypes';
+import { Location } from '@/types/locationTypes';
+import { Commodity } from '@/types/commodityTypes';
 import { fetchWaybillsByLayoutId } from '@/services/waybillService';
+import { fetchLocationsByLayoutId } from '@/services/locationService';
+import { fetchCommoditiesByLayoutId } from '@/services/commodityService';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,41 +21,35 @@ import {
 export default function WaybillsSearchPage() {
   const { layoutId } = useParams();
   const [waybills, setWaybills] = useState<Waybill[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [commodities, setCommodities] = useState<Commodity[]>([]);
 
   useEffect(() => {
-    const loadWaybills = async () => {
-        console.log(`layoutId: ${layoutId}`);
+    const loadData = async () => {
       if (!layoutId) return;
+      const id = parseInt(layoutId, 10);
+      if (isNaN(id)) return;
 
       try {
-        const numericLayoutId = parseInt(layoutId, 10);
-        if (isNaN(numericLayoutId)) {
-          console.error('Invalid layoutId:', layoutId);
-          return;
-        }
-
-        const data = await fetchWaybillsByLayoutId(numericLayoutId);
-        console.log(`returned waybill data: ${JSON.stringify(data)}`);
-        setWaybills(data);
-        console.log(`waybills value = ${JSON.stringify(waybills)}`);
-      } catch (error) {
-        console.error('Failed to load waybills:', error);
+        const [waybills, locations, commodities] = await Promise.all([
+          fetchWaybillsByLayoutId(id),
+          fetchLocationsByLayoutId(id),
+          fetchCommoditiesByLayoutId(id),
+        ]);
+        setWaybills(waybills);
+        setLocations(locations);
+        setCommodities(commodities);
+      } catch (err) {
+        console.error('Failed to load data:', err);
       }
     };
-    
 
-    loadWaybills();
+    loadData();
   }, [layoutId]);
 
-    useEffect(() => {
-        console.log('Updated waybills:', waybills);
-    }, [waybills]);
-
-
-  const handleSelectWaybill = (waybill: Waybill) => {
-    // TODO: Add navigation or modal logic to edit the selected waybill
-    console.log('Selected waybill:', waybill);
-  };
+  useEffect(() => {
+      console.log('Updated waybills:', waybills);
+  }, [waybills]);
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
@@ -68,8 +66,8 @@ export default function WaybillsSearchPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
         </Breadcrumb>
-      <h1 className="text-2xl font-bold mb-4">Edit Waybills</h1>
-      <WaybillTable waybills={waybills} onSelect={handleSelectWaybill} />
+      <h1 className="text-2xl font-bold mb-4">Search Waybills</h1>
+      <WaybillTable waybills={waybills} locations={locations} commodities={commodities} />
     </div>
   );
 }

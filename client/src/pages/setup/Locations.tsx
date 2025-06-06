@@ -15,7 +15,7 @@ import { Table, TableHeader, TableRow, TableCell } from '@/components/ui/table'
 import { Pencil, Trash2 } from "lucide-react"
 import {fetchLayoutById} from "@/services/layoutService"
 import {
-  fetchLocationByLayoutId,
+  fetchLocationsByLayoutId,
   createLocation, 
   updateLocation,
   deleteLocation
@@ -65,7 +65,7 @@ export default function Locations() {
   useEffect(() => {
     if (layoutId) {
         fetchLayoutById(Number(layoutId)).then(setLayout).catch(console.error);
-        fetchLocationByLayoutId(Number(layoutId)).then(setLocations).catch(console.error);
+        fetchLocationsByLayoutId(Number(layoutId)).then(setLocations).catch(console.error);
     }
   }, [layoutId]);
 

@@ -3,7 +3,7 @@ import { Location } from "@/types/locationTypes"
 const API_URL = "http://localhost:3000/api/locations";
 
 // Fetch locations by layoutId
-export async function fetchLocationByLayoutId(layoutId: number): Promise<Location[]> {
+export async function fetchLocationsByLayoutId(layoutId: number): Promise<Location[]> {
     const url = `${API_URL}/getByLayout/${layoutId}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error("Failed to fetch locations by layoutId");

@@ -9,6 +9,7 @@ import Commodities from "./pages/setup/Commodities";
 import Waybills from "./pages/setup/Waybills";
 import WaybillsCreate from "./pages/setup/WaybillCreate";
 import WaybillsSearch from "./pages/setup/WaybillsSearch";
+import WaybillEdit from "./pages/setup/WaybillEdit";
 import Settings from "./pages/Settings";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="setup/waybills" element={<Waybills />} />
           <Route path="setup/waybills/create/:layoutId" element={<WaybillsCreate />} />
           <Route path="setup/waybills/search/:layoutId" element={<WaybillsSearch />} />
+          <Route path="/waybills/:id/edit" element={<WaybillEdit />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

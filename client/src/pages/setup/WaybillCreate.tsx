@@ -4,8 +4,8 @@ import { useParams, Link } from 'react-router-dom';
 import { Commodity } from '@/types/commodityTypes';
 import { Location } from '@/types/locationTypes';
 import { Waybill } from '@/types/waybillTypes';
-import { fetchLocationByLayoutId } from '@/services/locationService';
-import { fetchCommoditiesbyLayoutId } from '@/services/commodityService';
+import { fetchLocationsByLayoutId } from '@/services/locationService';
+import { fetchCommoditiesByLayoutId } from '@/services/commodityService';
 import { fetchWaybillsByLayoutId } from '@/services/waybillService';
 import WaybillForm from '@/components/WaybillsForm';
 import {
@@ -28,8 +28,8 @@ export default function WaybillsCreate() {
     useEffect(() => {
         if (layoutIdNum !== null && !isNaN(layoutIdNum)) {
         fetchWaybillsByLayoutId(layoutIdNum).then(setWaybills);
-        fetchLocationByLayoutId(layoutIdNum).then(setLocations).catch(console.error);
-        fetchCommoditiesbyLayoutId(layoutIdNum).then(setCommodities).catch(console.error);
+        fetchLocationsByLayoutId(layoutIdNum).then(setLocations).catch(console.error);
+        fetchCommoditiesByLayoutId(layoutIdNum).then(setCommodities).catch(console.error);
         }
     }, [layoutIdNum]);
 
